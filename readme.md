@@ -59,17 +59,6 @@ npx bddgen && npx playwright test --grep @cadastro
 npx bddgen && npx playwright test --grep @praticas-esportivas
 ```
 
-### Relatórios
-
-#### Gerar relatório Allure
-```bash
-npm run gerar-pasta-relatorio
-```
-
-#### Visualizar relatório Allure
-```bash
-npm run run_server_allure
-```
 
 ## Configurações
 
@@ -79,10 +68,6 @@ npm run run_server_allure
 - **Timeout**: 15 minutos
 - **Captura**: Vídeo, screenshots e traces habilitados
 
-### Allure
-- Relatórios detalhados com screenshots, vídeos e traces
-- Suporte a múltiplos navegadores
-- Histórico de execuções
 
 ## Estrutura dos Cenários
 
