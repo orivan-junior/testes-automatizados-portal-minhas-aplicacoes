@@ -1,11 +1,11 @@
-# IntranetAutomatizado
+# Portal-BS-Testes-Automatizados
 
-Projeto de automação de testes para o sistema DSV (Desenvolvimento de Sistemas de Vida) da Bradesco Seguros.
+Projeto de automação diretamente no ambiente web.
 
 ## Estrutura do Projeto
 
 ```
-IntranetAutomatizado/
+Portal-BS-Testes-Automatizados/
 ├── Scenarios/                    # Cenários BDD (.feature)
 │   └── Cadastro/
 │       └── CadastroSimples/
@@ -29,7 +29,7 @@ IntranetAutomatizado/
 ### Cadastro de Práticas Esportivas
 - **Arquivo**: `Scenarios/Cadastro/CadastroSimples/CadastroSimples.feature`
 - **Tags**: `@cadastro @praticas-esportivas @dsv`
-- **Descrição**: Cenário completo para cadastrar e pesquisar uma prática esportiva no sistema DSV
+- **Descrição**: Cenário completo para cadastrar e pesquisar uma prática esportiva diretamente no portal DSV
 
 ## Como Executar os Testes
 
@@ -85,7 +85,7 @@ Funcionalidade: SISTRAN » DSV - Cadastro de Práticas Esportivas
   
   @cadastro @praticas-esportivas @dsv
   Cenário: CT001 - Cadastrar e Pesquisar Prática Esportiva | Responsável: Orivan Junior
-    Dado que estou na página 'https://www.dsv.bradseg.com.br/'
+    Dado que estou na página '**********'
     E que clico no link 'Minhas Aplicações' no frame principal
     # ... mais steps
     E marco o checkbox 'selecionado' no frame Centro
