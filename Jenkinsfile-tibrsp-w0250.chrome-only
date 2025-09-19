@@ -6,14 +6,37 @@ pipeline {
         NEXUS_URL = 'http://nexus:8081'
         // NEXUS_USER e NEXUS_PASS agora vêm das variáveis globais do Jenkins
         // Configure essas variáveis em: Gerenciar Jenkins → Configure System → Global properties → Environment variables
+        // Uncomment and configure if behind a proxy:
+        // HTTP_PROXY = 'http://proxy.company.com:8080'
+        // HTTPS_PROXY = 'http://proxy.company.com:8080'
+        // NO_PROXY = 'localhost,127.0.0.1,nexus'
     }
 
     stages {
+        stage('Network Diagnostics') {
+            steps {
+                sh '''
+                    echo "🔍 Diagnóstico de rede..."
+                    echo "Testando resolução DNS:"
+                    nslookup github.com || echo "❌ DNS falhou"
+                    echo "Testando conectividade:"
+                    ping -c 3 github.com || echo "❌ Ping falhou"
+                    echo "Testando HTTPS:"
+                    curl -I --connect-timeout 10 https://github.com || echo "❌ HTTPS falhou"
+                    echo "Verificando configuração de proxy:"
+                    echo "HTTP_PROXY: ${HTTP_PROXY:-'não configurado'}"
+                    echo "HTTPS_PROXY: ${HTTPS_PROXY:-'não configurado'}"
+                '''
+            }
+        }
+
         stage('Checkout') {
             steps {
                 script {
                     // Usa credenciais seguras do GitHub configuradas no Jenkins
                     // Configure as credenciais em: Gerenciar Jenkins → Gerenciar credenciais → Global credentials
+                    // If HTTPS fails due to network issues, try SSH instead:
+                    // git branch: 'main', url: 'git@github.com:orivan-junior/testes-automatizados-portal-minhas-aplicacoes.git', credentialsId: 'github-ssh-key'
                     git branch: 'main', 
                          url: 'https://github.com/orivan-junior/testes-automatizados-portal-minhas-aplicacoes.git',
                          credentialsId: 'github-credentials'
