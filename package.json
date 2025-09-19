@@ -4,7 +4,10 @@
     "playwright-bdd": "^8.4.0"
   },
   "scripts": {
-    "cadastro": "npx bddgen && npx playwright test --grep @cadastro"
+    "cadastro": "npx bddgen && npx playwright test --grep @cadastro",
+    "consulta": "npx bddgen && npx playwright test --grep @consulta",
+    "consulta-cartao": "npx bddgen && npx playwright test --grep @consulta-cartao",
+    "all": "npx bddgen && npx playwright test"
   },
   "dependencies": {
     "dotenv": "^16.5.0"

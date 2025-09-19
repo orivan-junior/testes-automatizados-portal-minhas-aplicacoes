@@ -8,7 +8,7 @@ const testDir = defineBddConfig({
 
 export default defineConfig({
   testDir,
-  timeout: 900000, // Tempo limite de 15 minutos
+  timeout: 1200000, // Tempo limite de 20 minutos (aumentado para dar mais tempo)
   // Configurações globais para melhorar carregamento de recursos
   reporter: [
     ['html'], // Relatório HTML integrado

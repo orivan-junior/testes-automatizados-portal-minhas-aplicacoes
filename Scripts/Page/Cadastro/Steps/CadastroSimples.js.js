@@ -77,7 +77,7 @@ Given('preencho as credenciais de login', async ({ page }) => {
     
     // Aguardar até que a URL contenha "Minhas_Aplicacoes.asp" (indicando login bem-sucedido)
     await popupPage.waitForURL('**/Minhas_Aplicacoes.asp*', { 
-      timeout: 180000 // 3 minutos para você fazer o login
+      timeout: 300000 // 5 minutos para você fazer o login
     });
     
     const currentUrl = popupPage.url();
