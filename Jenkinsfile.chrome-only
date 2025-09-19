@@ -11,7 +11,8 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/nun3/playwrightCICD.git'
+                // Alterado para o seu repositório
+                git branch: 'main', url: 'https://github.com/orivan-junior/testes-automatizados-portal-minhas-aplicacoes.git'
             }
         }
 
@@ -50,7 +51,12 @@ pipeline {
 
         stage('Run Tests (Chrome only)') {
             steps {
-                sh 'npx playwright test --grep @consulta-cartao'
+                sh '''
+                    # ...existing setup...
+                    echo "Gerando testes BDD e executando Playwright filtrando pela tag @consulta-cartao"
+                    # Gera os testes a partir das features e executa o runner do Playwright com a tag
+                    npx bddgen && npx playwright test --grep "@consulta-cartao"
+                '''
             }
         }
 
