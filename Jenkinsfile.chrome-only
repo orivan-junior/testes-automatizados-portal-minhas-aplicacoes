@@ -11,8 +11,10 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Alterado para o seu repositório
-                git branch: 'main', url: 'https://github.com/orivan-junior/testes-automatizados-portal-minhas-aplicacoes.git'
+                // Usando SSH em vez de HTTPS para evitar problemas de conectividade
+                git branch: 'main', 
+                     url: 'git@github.com:orivan-junior/testes-automatizados-portal-minhas-aplicacoes.git',
+                     credentialsId: 'github-ssh-key'
             }
         }
 
