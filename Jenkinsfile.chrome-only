@@ -58,8 +58,8 @@ pipeline {
                         echo "Gerando testes BDD e executando Playwright filtrando pela tag @consulta-cartao"
                         # Gera os testes a partir das features
                         npx bddgen || echo "bddgen falhou (continuando para captar relatórios)"
-                        # Executa o runner do Playwright; em caso de falha será capturado por catchError
-                        npx playwright test --grep "@consulta-cartao"
+                        # Executa o runner do Playwright; força geração do relatório HTML em playwright-report
+                        npx playwright test --grep "@consulta-cartao" --reporter=html
                     '''
                 }
             }
@@ -81,6 +81,8 @@ pipeline {
                         cp -r test-results/screenshots /tmp/evidence-upload/ 2>/dev/null || echo "Nenhuma screenshot encontrada"
                         cp -r test-results/videos /tmp/evidence-upload/ 2>/dev/null || echo "Nenhum vídeo encontrado"
                         cp -r allure-results /tmp/evidence-upload/ 2>/dev/null || echo "Nenhum resultado Allure encontrado"
+                        # Copiar relatório do Playwright (HTML)
+                        cp -r playwright-report /tmp/evidence-upload/ 2>/dev/null || echo "Nenhum playwright-report encontrado"
                         
                         # Criar arquivo de informações do build
                         cat > /tmp/evidence-upload/build-info.txt << EOF
@@ -91,17 +93,20 @@ Commit: ${GIT_COMMIT}
 Jenkins URL: ${BUILD_URL}
 EOF
                         
-                        # Fazer upload para Nexus
+                        # Fazer upload para Nexus (inclui playwright-report quando presente)
                         cd /tmp/evidence-upload
-                        tar -czf evidence-${BUILD_NUMBER}-${timestamp}.tar.gz allure-results build-info.txt screenshots videos 2>/dev/null || tar -czf evidence-${BUILD_NUMBER}-${timestamp}.tar.gz allure-results build-info.txt
+                        tar -czf evidence-${BUILD_NUMBER}-${timestamp}.tar.gz playwright-report allure-results build-info.txt screenshots videos 2>/dev/null || \
+                        tar -czf evidence-${BUILD_NUMBER}-${timestamp}.tar.gz playwright-report allure-results build-info.txt 2>/dev/null || \
+                        tar -czf evidence-${BUILD_NUMBER}-${timestamp}.tar.gz allure-results build-info.txt || \
+                        tar -czf evidence-${BUILD_NUMBER}-${timestamp}.tar.gz build-info.txt
                         
                         # Upload usando curl
                         curl -u ${NEXUS_USER}:${NEXUS_PASS} \
                              --upload-file evidence-${BUILD_NUMBER}-${timestamp}.tar.gz \
-                             ${NEXUS_URL}/repository/playwright-evidence/evidence-${BUILD_NUMBER}-${timestamp}.tar.gz
+                             ${NEXUS_URL}/repository/playwright-evidence/evidence-${BUILD_NUMBER}-${timestamp}.tar.gz || echo "Upload falhou"
                         
-                        echo "✅ Upload concluído!"
-                        echo "🔗 URL: ${NEXUS_URL}/repository/playwright-evidence/evidence-${BUILD_NUMBER}-${timestamp}.tar.gz"
+                        echo "✅ Upload concluído (quando aplicável)"
+                        echo "🔗 URL provável: ${NEXUS_URL}/repository/playwright-evidence/evidence-${BUILD_NUMBER}-${timestamp}.tar.gz"
                     '''
                 }
             }
@@ -122,6 +127,7 @@ EOF
                         # Copiar relatórios
                         cp -r test-results /tmp/reports-upload/ 2>/dev/null || echo "Nenhum resultado de teste encontrado"
                         cp -r allure-results /tmp/reports-upload/ 2>/dev/null || echo "Nenhum resultado Allure encontrado"
+                        cp -r playwright-report /tmp/reports-upload/ 2>/dev/null || echo "Nenhum playwright-report encontrado"
                         
                         # Criar arquivo de informações do build
                         cat > /tmp/reports-upload/build-info.txt << EOF
@@ -132,15 +138,19 @@ Commit: ${GIT_COMMIT}
 Jenkins URL: ${BUILD_URL}
 EOF
                         
-                        # Fazer upload para Nexus
+                        # Fazer upload para Nexus (inclui playwright-report)
                         cd /tmp/reports-upload
-                        tar -czf reports-${BUILD_NUMBER}-${timestamp}.tar.gz test-results allure-results build-info.txt
+                        tar -czf reports-${BUILD_NUMBER}-${timestamp}.tar.gz playwright-report test-results allure-results build-info.txt 2>/dev/null || \
+                        tar -czf reports-${BUILD_NUMBER}-${timestamp}.tar.gz test-results allure-results build-info.txt || \
+                        tar -czf reports-${BUILD_NUMBER}-${timestamp}.tar.gz playwright-report build-info.txt || \
+                        tar -czf reports-${BUILD_NUMBER}-${timestamp}.tar.gz build-info.txt
+                        
                         curl -u ${NEXUS_USER}:${NEXUS_PASS} \
                              --upload-file reports-${BUILD_NUMBER}-${timestamp}.tar.gz \
-                             ${NEXUS_URL}/repository/playwright-reports/reports-${BUILD_NUMBER}-${timestamp}.tar.gz
+                             ${NEXUS_URL}/repository/playwright-reports/reports-${BUILD_NUMBER}-${timestamp}.tar.gz || echo "Upload falhou"
                         
-                        echo "✅ Upload de relatórios concluído!"
-                        echo "🔗 URL: ${NEXUS_URL}/repository/playwright-reports/reports-${BUILD_NUMBER}-${timestamp}.tar.gz"
+                        echo "✅ Upload de relatórios concluído (quando aplicável)"
+                        echo "🔗 URL provável: ${NEXUS_URL}/repository/playwright-reports/reports-${BUILD_NUMBER}-${timestamp}.tar.gz"
                     '''
                 }
             }
@@ -161,6 +171,8 @@ EOF
             // Arquivos de evidência
             archiveArtifacts artifacts: 'test-results/**/*', allowEmptyArchive: true
             archiveArtifacts artifacts: 'allure-results/**/*', allowEmptyArchive: true
+            // Arquivar o relatório HTML do Playwright
+            archiveArtifacts artifacts: 'playwright-report/**/*', allowEmptyArchive: true
             
             // Limpar arquivos temporários
             sh 'rm -rf /tmp/evidence-upload /tmp/reports-upload'

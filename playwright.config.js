@@ -11,8 +11,8 @@ export default defineConfig({
   timeout: 1200000, // Tempo limite de 20 minutos (aumentado para dar mais tempo)
   // Configurações globais para melhorar carregamento de recursos
   reporter: [
-    ['html'], // Relatório HTML integrado
-    ['list'], // Relatório Inline (exibe no console)
+    ['list'],
+    ['html', { outputFolder: 'playwright-report', open: 'never' }]
     // ['./wordReporter.js'], // Relatório em Word
   ],
   use: {
