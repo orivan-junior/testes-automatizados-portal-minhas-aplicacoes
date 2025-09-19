@@ -22,9 +22,8 @@ export default defineConfig({
     headless: false, // Executa no modo headless
     // baseURL: 'https://wwwn.dsv.bradescoseguros.com.br/pnegocios2/wps/portal/portaldenegociosnovo/!ut/p/z1/hU7LCsIwEPwWDz2aXWuR6i0IFqUVRNC6F0lr-oA2KUlU_HsDXtXObZ4MEORASjzaWrhWK9F5fqHFNU3SLS7jcI_rTYgHfjpGSRbOoiyC81iAvI0_wNH3aSyyA6o7XXzecFXM4xrIyEoaadjdeLlxbrCrAAO0zj8vLXNS9JaVN8V0VbWlZEq6AL8NNNo6yP_1YOhznFLxevLJ5A0FAdjh/dz/d5/L2dBISEvZ0FBIS9nQSEh/',
     trace: 'on', // Captura traces para todos os testes
-    screenshot: 'only-on-failure', // Captura screenshots apenas em caso de falha
-    //screenshot: 'on', // Captura screenshots para todos os testes
-    //video: 'on-first-retry', // Captura vídeo apenas na primeira tentativa
+    screenshot: 'on', // Captura screenshots para todos os testes
+    video: 'on', // Captura vídeos para todos os testes
     
 
   },
