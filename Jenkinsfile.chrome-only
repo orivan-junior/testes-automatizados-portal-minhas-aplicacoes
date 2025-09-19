@@ -51,12 +51,17 @@ pipeline {
 
         stage('Run Tests (Chrome only)') {
             steps {
-                sh '''
-                    # ...existing setup...
-                    echo "Gerando testes BDD e executando Playwright filtrando pela tag @consulta-cartao"
-                    # Gera os testes a partir das features e executa o runner do Playwright com a tag
-                    npx bddgen && npx playwright test --grep "@consulta-cartao"
-                '''
+                // Captura falhas nos testes para continuar o pipeline e permitir upload dos artefatos
+                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                    sh '''
+                        # ...existing setup...
+                        echo "Gerando testes BDD e executando Playwright filtrando pela tag @consulta-cartao"
+                        # Gera os testes a partir das features
+                        npx bddgen || echo "bddgen falhou (continuando para captar relatórios)"
+                        # Executa o runner do Playwright; em caso de falha será capturado por catchError
+                        npx playwright test --grep "@consulta-cartao"
+                    '''
+                }
             }
         }
 
