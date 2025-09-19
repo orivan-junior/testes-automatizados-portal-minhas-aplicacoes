@@ -67,14 +67,6 @@ pipeline {
         }
 
         stage('Upload Evidence to Nexus') {
-            when {
-                anyOf {
-                    exists 'test-results/screenshots'
-                    exists 'test-results/videos'
-                    exists 'allure-results'
-                    exists 'playwright-report'
-                }
-            }
             steps {
                 script {
                     def timestamp = new Date().format('yyyy-MM-dd_HH-mm-ss')
@@ -121,13 +113,6 @@ EOF
         }
 
         stage('Upload Reports to Nexus') {
-            when {
-                anyOf {
-                    exists 'test-results'
-                    exists 'allure-results'
-                    exists 'playwright-report'
-                }
-            }
             steps {
                 script {
                     def timestamp = new Date().format('yyyy-MM-dd_HH-mm-ss')
