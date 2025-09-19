@@ -4,8 +4,8 @@ pipeline {
     environment {
         CI = 'true'
         NEXUS_URL = 'http://nexus:8081'
-        NEXUS_USER = 'admin'
-        NEXUS_PASS = credentials('nexus-password') // Usar credenciais do Jenkins
+        NEXUS_USER = 'jenkins'
+        NEXUS_PASS = 'jenkins123'
     }
 
     stages {
@@ -160,27 +160,28 @@ EOF
 
     post {
         always {
-            // Gerar relatório Allure
-            allure([
-                includeProperties: false,
-                jdk: '',
-                properties: [],
-                reportBuildPolicy: 'ALWAYS',
-                results: [[path: 'allure-results']]
-            ])
-            
-            // Arquivos de evidência
-            archiveArtifacts artifacts: 'test-results/**/*', allowEmptyArchive: true
-            archiveArtifacts artifacts: 'allure-results/**/*', allowEmptyArchive: true
-            archiveArtifacts artifacts: 'playwright-report/**/*', allowEmptyArchive: true
-            
-            // Limpar arquivos temporários
-            sh 'rm -rf /tmp/evidence-upload /tmp/reports-upload 2>/dev/null || true'
+            script {
+                // Gerar relatório Allure
+                allure([
+                    includeProperties: false,
+                    jdk: '',
+                    properties: [],
+                    reportBuildPolicy: 'ALWAYS',
+                    results: [[path: 'allure-results']]
+                ])
+                
+                // Arquivos de evidência
+                archiveArtifacts artifacts: 'test-results/**/*', allowEmptyArchive: true
+                archiveArtifacts artifacts: 'allure-results/**/*', allowEmptyArchive: true
+                archiveArtifacts artifacts: 'playwright-report/**/*', allowEmptyArchive: true
+                
+                // Limpar arquivos temporários
+                sh 'rm -rf /tmp/evidence-upload /tmp/reports-upload 2>/dev/null || true'
+            }
         }
         
         failure {
             echo "❌ Pipeline falhou"
-            // Aqui você pode adicionar notificações (email, Slack, etc.)
         }
         
         success {
