@@ -50,7 +50,7 @@ pipeline {
 
         stage('Run Tests (Chrome only)') {
             steps {
-                sh 'npx playwright test --grep @consulta-cartao --project=chromium --reporter=list'
+                sh 'npx playwright test --grep @consulta-cartao'
             }
         }
 
