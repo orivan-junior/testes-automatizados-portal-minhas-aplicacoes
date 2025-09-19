@@ -7,66 +7,12 @@ pipeline {
     }
 
     stages {
-        stage('Fix DNS & Network') {
-            steps {
-                sh '''
-                    echo "🔧 Corrigindo problemas de DNS e rede..."
-                    
-                    # Instalar ferramentas de rede se necessário
-                    echo "📦 Instalando ferramentas de rede..."
-                    apt-get update -qq
-                    apt-get install -y dnsutils iputils-ping curl || echo "Falha ao instalar ferramentas"
-                    
-                    # Configurar DNS público
-                    echo "🔧 Configurando DNS público..."
-                    echo "nameserver 8.8.8.8" >> /etc/resolv.conf
-                    echo "nameserver 8.8.4.4" >> /etc/resolv.conf
-                    echo "nameserver 1.1.1.1" >> /etc/resolv.conf
-                    
-                    # Aguardar DNS se propagar
-                    sleep 3
-                    
-                    # Se ainda não funcionar, adicionar entrada no hosts
-                    if ! nslookup github.com >/dev/null 2>&1; then
-                        echo "DNS ainda falha, adicionando entrada no /etc/hosts..."
-                        echo "140.82.112.4 github.com" >> /etc/hosts
-                        echo "140.82.112.3 api.github.com" >> /etc/hosts
-                    fi
-                    
-                    # Testar conectividade
-                    echo "🧪 Testando conectividade:"
-                    nslookup github.com || echo "❌ DNS falhou"
-                    ping -c 2 github.com || echo "❌ Ping falhou"
-                    curl -I --connect-timeout 5 https://github.com || echo "❌ HTTPS falhou"
-                '''
-            }
-        }
-
         stage('Checkout') {
             steps {
-                script {
-                    // Tentar HTTPS primeiro, se falhar, tentar SSH
-                    try {
-                        echo "🔄 Tentando checkout via HTTPS..."
-                        git branch: 'main', 
-                             url: 'https://github.com/orivan-junior/testes-automatizados-portal-minhas-aplicacoes.git',
-                             credentialsId: 'github-credentials'
-                        echo "✅ Checkout HTTPS bem-sucedido!"
-                    } catch (Exception e) {
-                        echo "❌ Checkout HTTPS falhou: ${e.getMessage()}"
-                        echo "🔄 Tentando checkout via SSH..."
-                        try {
-                            git branch: 'main',
-                                url: 'git@github.com:orivan-junior/testes-automatizados-portal-minhas-aplicacoes.git',
-                                credentialsId: 'github-ssh-key'
-                            echo "✅ Checkout SSH bem-sucedido!"
-                        } catch (Exception sshError) {
-                            echo "❌ Checkout SSH também falhou: ${sshError.getMessage()}"
-                            echo "🚨 Ambos os métodos de checkout falharam!"
-                            throw sshError
-                        }
-                    }
-                }
+                // Usa credenciais seguras do GitHub configuradas no Jenkins
+                git branch: 'main', 
+                     url: 'https://github.com/orivan-junior/testes-automatizados-portal-minhas-aplicacoes.git',
+                     credentialsId: 'github-credentials'
             }
         }
 
