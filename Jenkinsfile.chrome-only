@@ -139,7 +139,19 @@ EOF
                         
                         # Fazer upload para Nexus
                         cd /tmp/evidence-upload
-                        tar -czf evidence-${BUILD_NUMBER}-${timestamp}.tar.gz . 2>/dev/null
+                        echo "📁 Criando arquivo tar das evidências..."
+                        echo "📂 Conteúdo do diretório atual:"
+                        ls -la
+                        if tar -czf evidence-${BUILD_NUMBER}-${timestamp}.tar.gz --exclude="*.tar.gz" .; then
+                            echo "✅ Arquivo tar criado com sucesso: evidence-${BUILD_NUMBER}-${timestamp}.tar.gz"
+                        else
+                            echo "❌ Erro ao criar arquivo tar"
+                            exit 1
+                        fi
+                        
+                        # Verificar se o arquivo foi criado
+                        echo "📋 Verificando arquivo criado:"
+                        ls -la evidence-${BUILD_NUMBER}-${timestamp}.tar.gz
                         
                         # Upload usando curl com tratamento de erro
                         echo "🔄 Tentando upload para Nexus..."
@@ -161,57 +173,6 @@ EOF
             }
         }
 
-        stage('Upload Reports to Nexus') {
-            steps {
-                script {
-                    def timestamp = new Date().format('yyyy-MM-dd_HH-mm-ss')
-                    def buildNumber = env.BUILD_NUMBER
-                    
-                    sh '''
-                        echo "📤 Fazendo upload dos relatórios para o Nexus..."
-                        echo "📋 Projeto: Portal Minhas Aplicações - Testes Automatizados"
-                        echo "🎯 Foco: Testes de Consulta Cartão"
-                        
-                        # Criar diretório temporário para relatórios
-                        mkdir -p /tmp/reports-upload
-                        
-                        # Copiar relatórios (com verificação de existência)
-                        [ -d "test-results" ] && cp -r test-results /tmp/reports-upload/ || echo "Nenhum resultado de teste encontrado"
-                        [ -d "allure-results" ] && cp -r allure-results /tmp/reports-upload/ || echo "Nenhum resultado Allure encontrado"
-                        [ -d "playwright-report" ] && cp -r playwright-report /tmp/reports-upload/ || echo "Nenhum playwright-report encontrado"
-                        
-                        # Criar arquivo de informações do build
-                        cat > /tmp/reports-upload/build-info.txt << EOF
-Build Number: ${BUILD_NUMBER}
-Timestamp: ${timestamp}
-Branch: ${GIT_BRANCH}
-Commit: ${GIT_COMMIT}
-Jenkins URL: ${BUILD_URL}
-EOF
-                        
-                        # Fazer upload para Nexus
-                        cd /tmp/reports-upload
-                        tar -czf reports-${BUILD_NUMBER}-${timestamp}.tar.gz . 2>/dev/null
-                        
-                        # Upload usando curl com tratamento de erro
-                        echo "🔄 Tentando upload de relatórios para Nexus..."
-                        echo "📁 Arquivo: reports-${BUILD_NUMBER}-${timestamp}.tar.gz"
-                        echo "🌐 URL: ${NEXUS_URL}/repository/playwright-reports/"
-                        
-                        if curl -u ${NEXUS_USER}:${NEXUS_PASS} \
-                             --upload-file reports-${BUILD_NUMBER}-${timestamp}.tar.gz \
-                             ${NEXUS_URL}/repository/playwright-reports/reports-${BUILD_NUMBER}-${timestamp}.tar.gz; then
-                            echo "✅ Upload de relatórios concluído com sucesso"
-                            echo "🔗 URL: ${NEXUS_URL}/repository/playwright-reports/reports-${BUILD_NUMBER}-${timestamp}.tar.gz"
-                        else
-                            echo "❌ Upload de relatórios falhou - continuando pipeline"
-                            echo "⚠️ Verifique se o repositório 'playwright-reports' existe no Nexus"
-                            echo "📋 Relatórios salvos localmente em: /tmp/reports-upload/"
-                        fi
-                    '''
-                }
-            }
-        }
     }
 
     post {
@@ -232,7 +193,7 @@ EOF
                 archiveArtifacts artifacts: 'playwright-report/**/*', allowEmptyArchive: true
                 
                 // Limpar arquivos temporários
-                sh 'rm -rf /tmp/evidence-upload /tmp/reports-upload 2>/dev/null || true'
+                sh 'rm -rf /tmp/evidence-upload 2>/dev/null || true'
             }
         }
         
