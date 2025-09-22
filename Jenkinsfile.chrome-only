@@ -142,14 +142,19 @@ EOF
                         tar -czf evidence-${BUILD_NUMBER}-${timestamp}.tar.gz . 2>/dev/null
                         
                         # Upload usando curl com tratamento de erro
+                        echo "🔄 Tentando upload para Nexus..."
+                        echo "📁 Arquivo: evidence-${BUILD_NUMBER}-${timestamp}.tar.gz"
+                        echo "🌐 URL: ${NEXUS_URL}/repository/playwright-evidence/"
+                        
                         if curl -u ${NEXUS_USER}:${NEXUS_PASS} \
                              --upload-file evidence-${BUILD_NUMBER}-${timestamp}.tar.gz \
-                             ${NEXUS_URL}/repository/portal-minhas-aplicacoes-evidence/evidence-${BUILD_NUMBER}-${timestamp}.tar.gz; then
+                             ${NEXUS_URL}/repository/playwright-evidence/evidence-${BUILD_NUMBER}-${timestamp}.tar.gz; then
                             echo "✅ Upload concluído com sucesso"
-                            echo "🔗 URL: ${NEXUS_URL}/repository/portal-minhas-aplicacoes-evidence/evidence-${BUILD_NUMBER}-${timestamp}.tar.gz"
+                            echo "🔗 URL: ${NEXUS_URL}/repository/playwright-evidence/evidence-${BUILD_NUMBER}-${timestamp}.tar.gz"
                         else
-                            echo "❌ Upload falhou"
-                            exit 1
+                            echo "❌ Upload falhou - continuando pipeline"
+                            echo "⚠️ Verifique se o repositório 'playwright-evidence' existe no Nexus"
+                            echo "📋 Evidências salvas localmente em: /tmp/evidence-upload/"
                         fi
                     '''
                 }
@@ -189,14 +194,19 @@ EOF
                         tar -czf reports-${BUILD_NUMBER}-${timestamp}.tar.gz . 2>/dev/null
                         
                         # Upload usando curl com tratamento de erro
+                        echo "🔄 Tentando upload de relatórios para Nexus..."
+                        echo "📁 Arquivo: reports-${BUILD_NUMBER}-${timestamp}.tar.gz"
+                        echo "🌐 URL: ${NEXUS_URL}/repository/playwright-reports/"
+                        
                         if curl -u ${NEXUS_USER}:${NEXUS_PASS} \
                              --upload-file reports-${BUILD_NUMBER}-${timestamp}.tar.gz \
-                             ${NEXUS_URL}/repository/portal-minhas-aplicacoes-reports/reports-${BUILD_NUMBER}-${timestamp}.tar.gz; then
+                             ${NEXUS_URL}/repository/playwright-reports/reports-${BUILD_NUMBER}-${timestamp}.tar.gz; then
                             echo "✅ Upload de relatórios concluído com sucesso"
-                            echo "🔗 URL: ${NEXUS_URL}/repository/portal-minhas-aplicacoes-reports/reports-${BUILD_NUMBER}-${timestamp}.tar.gz"
+                            echo "🔗 URL: ${NEXUS_URL}/repository/playwright-reports/reports-${BUILD_NUMBER}-${timestamp}.tar.gz"
                         else
-                            echo "❌ Upload falhou"
-                            exit 1
+                            echo "❌ Upload de relatórios falhou - continuando pipeline"
+                            echo "⚠️ Verifique se o repositório 'playwright-reports' existe no Nexus"
+                            echo "📋 Relatórios salvos localmente em: /tmp/reports-upload/"
                         fi
                     '''
                 }
