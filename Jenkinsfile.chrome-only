@@ -1,6 +1,7 @@
 pipeline {
     agent any
 
+
     environment {
         CI = 'true'
         NEXUS_URL = 'http://nexus:8081'
@@ -9,12 +10,50 @@ pipeline {
     }
 
     stages {
+        stage('Configure Network') {
+            steps {
+                sh '''
+                    echo "🔧 Configurando rede para acesso ao GitHub..."
+                    echo "📋 Projeto: Portal Minhas Aplicações - Testes Automatizados"
+                    echo "🎯 Foco: Testes de Consulta Cartão"
+                    echo "🔗 Repositório: orivan-junior/testes-automatizados-portal-minhas-aplicacoes"
+                    
+                    # Limpar configurações anteriores (ignorar erros se não existirem)
+                    unset HTTP_PROXY
+                    unset HTTPS_PROXY
+                    git config --global --unset http.proxy || true
+                    git config --global --unset https.proxy || true
+                    
+                    echo "✅ Configuração de rede concluída"
+                    echo "⚠️ Tentando checkout direto - se falhar, tentaremos SSH"
+                '''
+            }
+        }
+
         stage('Checkout') {
             steps {
-                // Usando SSH com o ID correto das credenciais
-                git branch: 'main', 
-                     url: 'git@github.com:orivan-junior/testes-automatizados-portal-minhas-aplicacoes.git',
-                     credentialsId: 'jenkins-ssh-key' // ✅ ID correto
+                script {
+                    try {
+                        echo "🔄 Tentando checkout via HTTPS..."
+                        git branch: 'main', 
+                             url: 'https://github.com/orivan-junior/testes-automatizados-portal-minhas-aplicacoes.git',
+                             credentialsId: 'github-credentials'
+                        echo "✅ Checkout HTTPS bem-sucedido!"
+                    } catch (Exception e) {
+                        echo "❌ Checkout HTTPS falhou: ${e.getMessage()}"
+                        echo "🔄 Tentando checkout via SSH..."
+                        try {
+                            git branch: 'main',
+                                url: 'git@github.com:orivan-junior/testes-automatizados-portal-minhas-aplicacoes.git',
+                                credentialsId: 'jenkins-ssh-key'
+                            echo "✅ Checkout SSH bem-sucedido!"
+                        } catch (Exception sshError) {
+                            echo "❌ Checkout SSH também falhou: ${sshError.getMessage()}"
+                            echo "🚨 Ambos os métodos de checkout falharam!"
+                            throw sshError
+                        }
+                    }
+                }
             }
         }
 
@@ -56,11 +95,14 @@ pipeline {
                 // Captura falhas nos testes para continuar o pipeline
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                     sh '''
-                        echo "Gerando testes BDD e executando Playwright filtrando pela tag @consulta-cartao"
+                        echo "Gerando testes BDD e executando Playwright para Portal Minhas Aplicações"
+                        echo "Executando testes de consulta cartão..."
+                        
                         # Gera os testes a partir das features
                         npx bddgen || echo "bddgen falhou (continuando para captar relatórios)"
-                        # Executa o runner do Playwright; força geração do relatório HTML
-                        npx playwright test --grep "@consulta-cartao" --reporter=html
+                        
+                        # Executa apenas os testes de consulta cartão
+                        npm run consulta-cartao
                     '''
                 }
             }
@@ -74,6 +116,8 @@ pipeline {
                     
                     sh '''
                         echo "📤 Fazendo upload das evidências para o Nexus..."
+                        echo "📋 Projeto: Portal Minhas Aplicações - Testes Automatizados"
+                        echo "🎯 Foco: Testes de Consulta Cartão"
                         
                         # Criar diretório temporário
                         mkdir -p /tmp/evidence-upload
@@ -100,9 +144,9 @@ EOF
                         # Upload usando curl com tratamento de erro
                         if curl -u ${NEXUS_USER}:${NEXUS_PASS} \
                              --upload-file evidence-${BUILD_NUMBER}-${timestamp}.tar.gz \
-                             ${NEXUS_URL}/repository/playwright-evidence/evidence-${BUILD_NUMBER}-${timestamp}.tar.gz; then
+                             ${NEXUS_URL}/repository/portal-minhas-aplicacoes-evidence/evidence-${BUILD_NUMBER}-${timestamp}.tar.gz; then
                             echo "✅ Upload concluído com sucesso"
-                            echo "🔗 URL: ${NEXUS_URL}/repository/playwright-evidence/evidence-${BUILD_NUMBER}-${timestamp}.tar.gz"
+                            echo "🔗 URL: ${NEXUS_URL}/repository/portal-minhas-aplicacoes-evidence/evidence-${BUILD_NUMBER}-${timestamp}.tar.gz"
                         else
                             echo "❌ Upload falhou"
                             exit 1
@@ -120,6 +164,8 @@ EOF
                     
                     sh '''
                         echo "📤 Fazendo upload dos relatórios para o Nexus..."
+                        echo "📋 Projeto: Portal Minhas Aplicações - Testes Automatizados"
+                        echo "🎯 Foco: Testes de Consulta Cartão"
                         
                         # Criar diretório temporário para relatórios
                         mkdir -p /tmp/reports-upload
@@ -145,9 +191,9 @@ EOF
                         # Upload usando curl com tratamento de erro
                         if curl -u ${NEXUS_USER}:${NEXUS_PASS} \
                              --upload-file reports-${BUILD_NUMBER}-${timestamp}.tar.gz \
-                             ${NEXUS_URL}/repository/playwright-reports/reports-${BUILD_NUMBER}-${timestamp}.tar.gz; then
+                             ${NEXUS_URL}/repository/portal-minhas-aplicacoes-reports/reports-${BUILD_NUMBER}-${timestamp}.tar.gz; then
                             echo "✅ Upload de relatórios concluído com sucesso"
-                            echo "🔗 URL: ${NEXUS_URL}/repository/playwright-reports/reports-${BUILD_NUMBER}-${timestamp}.tar.gz"
+                            echo "🔗 URL: ${NEXUS_URL}/repository/portal-minhas-aplicacoes-reports/reports-${BUILD_NUMBER}-${timestamp}.tar.gz"
                         else
                             echo "❌ Upload falhou"
                             exit 1
