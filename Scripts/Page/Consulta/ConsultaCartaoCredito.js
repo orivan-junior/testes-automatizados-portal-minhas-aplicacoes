@@ -72,6 +72,7 @@ class ConsultaCartaoCreditoPage {
   async preencherCpf(cpf) {
     await this.inputCpf.click();
     await this.inputCpf.fill(cpf);
+    await this.inputCpf.press('Enter');
     console.log(`✅ Preencheu CPF: ${cpf}`);
   }
 

@@ -5,7 +5,7 @@ Funcionalidade: Consulta de Cartão de Crédito GCCS
   Eu quero consultar propostas de cartão de crédito
   Para verificar informações de documentos de venda
 
-  @smoke @consulta @positivo @consulta-cartao
+  @smoke @consulta @gccs @consulta-cartao
   Cenário: Consulta bem-sucedida com CPF válido - Cartão Ativado
     Dado que estou na página inicial do login
     E clico em Minhas Aplicações
@@ -24,7 +24,7 @@ Funcionalidade: Consulta de Cartão de Crédito GCCS
     E deve mostrar a administradora "PRJR"
     E deve mostrar a classe "GOLD"
 
-  @consulta @negativo @consulta-cartao
+  @consulta @gccs @consulta-cartao
   Cenário: Consulta sem resultados - CPF inexistente
     Dado que estou na página inicial do login
     E clico em Minhas Aplicações

@@ -7,6 +7,11 @@
     "cadastro": "npx bddgen && npx playwright test --grep @cadastro",
     "consulta": "npx bddgen && npx playwright test --grep @consulta",
     "consulta-cartao": "npx bddgen && npx playwright test --grep @consulta-cartao",
+    "consulta-campanha": "npx bddgen && npx playwright test --grep @consulta-campanha",
+    "consulta-débitos": "npx bddgen && npx playwright test --grep @consulta-débitos",
+    "manutenção-eventos": "npx bddgen && npx playwright test --grep @manutenção-eventos",
+    "relatório-pontuação": "npx bddgen && npx playwright test --grep @relatório-pontuação",
+    "gccs": "npx bddgen && npx playwright test --grep @gccs",
     "all": "npx bddgen && npx playwright test"
   },
   "dependencies": {
