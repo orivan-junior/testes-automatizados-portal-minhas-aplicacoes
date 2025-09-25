@@ -81,8 +81,30 @@ pipeline {
             steps {
                 sh '''
                     echo "📦 Instalando dependências..."
-                    npm ci --unsafe-perm
-                    echo "✅ Dependências instaladas com sucesso"
+                    echo "🔍 Verificando versões..."
+                    echo "Node.js: $(node --version)"
+                    echo "npm: $(npm --version)"
+                    
+                    # Limpar cache npm para evitar problemas
+                    echo "🧹 Limpando cache npm..."
+                    npm cache clean --force || true
+                    
+                    # Tentar npm ci primeiro (mais rápido e seguro)
+                    if npm ci --unsafe-perm; then
+                        echo "✅ Dependências instaladas com npm ci"
+                    else
+                        echo "⚠️ npm ci falhou, tentando npm install..."
+                        echo "🔄 Atualizando package-lock.json..."
+                        
+                        # Remover package-lock.json se existir para forçar regeneração
+                        rm -f package-lock.json || true
+                        
+                        npm install --unsafe-perm
+                        echo "✅ Dependências instaladas com npm install"
+                    fi
+                    
+                    echo "📋 Verificando instalação..."
+                    npm list --depth=0 || echo "⚠️ Algumas dependências podem ter problemas"
                 '''
             }
         }
