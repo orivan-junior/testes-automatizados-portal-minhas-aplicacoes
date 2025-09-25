@@ -17,9 +17,12 @@ const testDir = defineBddConfig({
   steps: '{Scripts,Support}/**/**/*.js', // Caminho para os arquivos .steps
 });
 
+// Detectar se estamos no Jenkins
+const isJenkins = process.env.CI === 'true' || process.env.JENKINS_URL;
+
 export default defineConfig({
   testDir,
-  timeout: 1200000, // Tempo limite de 20 minutos (aumentado para dar mais tempo)
+  timeout: isJenkins ? 1800000 : 1200000, // 30min no Jenkins, 20min local
   // Configurações globais para melhorar carregamento de recursos
   reporter: [
     ['list'],
@@ -28,18 +31,19 @@ export default defineConfig({
     // ['./wordReporter.js'], // Relatório em Word
   ],
   use: {
-    viewport: { width: 1280, height: 720 }, // Define viewport para  hd
+    viewport: { width: 1280, height: 720 }, // Define viewport para HD
     video: 'on', // Captura vídeo para todos os testes
     ignoreHTTPSErrors: true, // Ignora erros de HTTPS
-    headless: process.env.CI === 'true' ? true : false, // Headless no CI, visível localmente
+    headless: isJenkins ? true : false, // Headless no Jenkins, visível localmente
     // Autenticação HTTP (Basic/Digest) automática quando o servidor solicitar
     httpCredentials,
     // baseURL: 'https://wwwn.dsv.bradescoseguros.com.br/pnegocios2/wps/portal/portaldenegociosnovo/!ut/p/z1/hU7LCsIwEPwWDz2aXWuR6i0IFqUVRNC6F0lr-oA2KUlU_HsDXtXObZ4MEORASjzaWrhWK9F5fqHFNU3SLS7jcI_rTYgHfjpGSRbOoiyC81iAvI0_wNH3aSyyA6o7XXzecFXM4xrIyEoaadjdeLlxbrCrAAO0zj8vLXNS9JaVN8V0VbWlZEq6AL8NNNo6yP_1YOhznFLxevLJ5A0FAdjh/dz/d5/L2dBISEvZ0FBIS9nQSEh/',
     trace: 'on', // Captura traces para todos os testes
     screenshot: 'on', // Captura screenshots para todos os testes
-    video: 'on', // Captura vídeos para todos os testes
     
-
+    // Configurações específicas para Jenkins
+    actionTimeout: isJenkins ? 60000 : 30000, // 60s no Jenkins, 30s local
+    navigationTimeout: isJenkins ? 120000 : 60000, // 2min no Jenkins, 1min local
   },
   projects: [
     {
@@ -58,6 +62,23 @@ export default defineConfig({
             '--disable-gpu', // Desativa GPU
             '--disable-web-security', // Desativa segurança web (se necessário)
             '--disable-features=VizDisplayCompositor', // Desativa compositor
+            // Configurações adicionais para Jenkins
+            ...(isJenkins ? [
+              '--disable-background-timer-throttling',
+              '--disable-backgrounding-occluded-windows',
+              '--disable-renderer-backgrounding',
+              '--disable-extensions',
+              '--disable-plugins',
+              '--disable-default-apps',
+              '--disable-sync',
+              '--disable-translate',
+              '--hide-scrollbars',
+              '--mute-audio',
+              '--no-default-browser-check',
+              '--disable-logging',
+              '--disable-permissions-api',
+              '--disable-notifications',
+            ] : []),
           ],
         },
       },

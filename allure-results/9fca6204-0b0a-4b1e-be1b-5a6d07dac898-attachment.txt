@@ -1,0 +1,29 @@
+✅ Navegou para a página inicial do DSV
+🔄 Aguardando popup (timeout: 30s)...
+✅ Clicou em Minhas Aplicações
+🔄 Aguardando popup carregar (timeout: 15s)...
+✅ Popup aberto e carregado corretamente
+🔄 Aguardando login manual...
+📝 Por favor, faça o login manualmente na página que abriu
+⏳ Aguardando até que você complete o login...
+⏰ Timeout de login: 5 minutos
+✅ Login manual detectado! URL atual: https://www.dsv.bradseg.com.br/admin_frames.asp?URL=https://www.dsv.bradseg.com.br/Minhas_Aplicacoes.asp
+✅ Continuando com o teste automaticamente...
+🌐 Navegando diretamente para: https://www.dsv.bradseg.com.br/admin_frames.asp?URL=https://wsphttp.dsv.bradseg.com.br/GCCS-ConsultaCartaoCredito/menuRelatorios.do
+✅ Navegou diretamente para a página de relatórios
+✅ Navegou diretamente para a página de relatórios
+✅ Clicou no link de relatório de pontuação
+✅ Marcou checkbox de pesquisa por CPF
+✅ Clicou no campo de filtro de CPF
+✅ Preencheu CPF: 144.932.537-89
+✅ Clicou no campo de filtro de cartão para habilitar
+✅ Selecionou cartão: 4066082982988294
+✅ Selecionou CIA: 531
+✅ Selecionou situação: PE
+✅ Clicou no botão pesquisar
+✅ Resultado do relatório de pontuação verificado
+✅ Validou CPF no resultado: 144.932.537-89
+✅ Validou nome do cliente no resultado: ROSE AP O CONCEICAO
+✅ Validou número do cartão no resultado: 4066082982988294
+✅ Validou classe do cartão no resultado: PLATINUM
+✅ Validou administradora no resultado: PRJR
