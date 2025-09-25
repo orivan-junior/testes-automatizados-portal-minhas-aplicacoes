@@ -130,10 +130,18 @@ pipeline {
                         echo "Gerando testes BDD e executando Playwright para Portal Minhas Aplicações"
                         echo "Executando testes de consulta cartão..."
                         
+                        # Verificar se playwright-bdd está instalado
+                        if ! npm list playwright-bdd >/dev/null 2>&1; then
+                            echo "📦 Instalando playwright-bdd..."
+                            npm install -D playwright-bdd
+                        fi
+                        
                         # Gera os testes a partir das features
+                        echo "🔄 Gerando testes BDD..."
                         npx bddgen || echo "bddgen falhou (continuando para captar relatórios)"
                         
                         # Executa apenas os testes com tag gccs
+                        echo "🚀 Executando testes..."
                         npm run gccs
                     '''
                 }
@@ -149,15 +157,9 @@ pipeline {
                     if [ -d "allure-results" ] && [ "$(ls -A allure-results)" ]; then
                         echo "✅ Resultados do Allure encontrados"
                         
-                        # Gerar relatório Allure
-                        if command -v allure &> /dev/null; then
-                            echo "📈 Gerando relatório com Allure CLI..."
-                            allure generate allure-results --clean -o allure-report
-                        else
-                            echo "📦 Instalando Allure CLI..."
-                            npm install -g allure-commandline
-                            allure generate allure-results --clean -o allure-report
-                        fi
+                        # Gerar relatório Allure usando npx
+                        echo "📈 Gerando relatório com Allure CLI via npx..."
+                        npx allure-commandline generate allure-results --clean -o allure-report
                         
                         echo "✅ Relatório Allure gerado com sucesso"
                     else
