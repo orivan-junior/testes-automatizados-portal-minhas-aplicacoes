@@ -23,7 +23,7 @@ export default defineConfig({
   // Configurações globais para melhorar carregamento de recursos
   reporter: [
     ['list'],
-    ['allure-playwright', { outputFolder: 'allure-results' }]
+    ['allure-playwright', { outputFolder: 'allure-results' }],
     ['html', { outputFolder: 'playwright-report', open: 'never' }]
     // ['./wordReporter.js'], // Relatório em Word
   ],
